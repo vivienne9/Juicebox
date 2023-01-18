@@ -103,7 +103,7 @@ async function updatePost(id,fields = {}) {
 async function getAllPosts() {
     try {
         const { rows } = await client.query(
-            `SELECT id, authorId,title,content
+            `SELECT title,content
             FROM posts;
           `);
           return rows;
@@ -126,21 +126,28 @@ async function getAllPosts() {
     }
   }
 
-//   async function getUserById(userId) {
+  async function getUserById(userId) {
 
+    try {
+        const { rows } = await client.query(`
+          SELECT * FROM users
+          WHERE "authorId"=${ userId };
+        `);
+        return rows;
+      } catch (error) {
+        throw error;
+      }
+      if(rows){
+        const { delRows } = await client.query(`DELETE password FROM users
+        WHERE "authorId"=${ userId }`);
 
-//     // first get the user (NOTE: Remember the query returns 
-//       // (1) an object that contains 
-//       // (2) a `rows` array that (in this case) will contain 
-//       // (3) one object, which is our user.
-//     // if it doesn't exist (if there are no `rows` or `rows.length`), return null
-  
-//     // if it does:
-//     // delete the 'password' key from the returned object
-//     // get their posts (use getPostsByUser)
-//     // then add the posts to the user object with key 'posts'
-//     // return the user object
-//   }
+        // delete the 'password' key from the returned object
+        //     get their posts (use getPostsByUser)
+        //     then add the posts to the user object with key 'posts'
+        //     return the user object
+      }
+
+    }
 
   module.exports = {
     client,
@@ -149,6 +156,8 @@ async function getAllPosts() {
     updateUser,
     createPost,
     updatePost,
-    getAllPosts
+    getAllPosts,
+    getPostsByUser,
+    getUserById
   }
   
